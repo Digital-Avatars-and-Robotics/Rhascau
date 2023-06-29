@@ -12,11 +12,11 @@
 
 ## Introduction
 
-Rhascau is a turn-based pod racing board game which logic lays fully on the blockchain. It can be lunched on any EVM chain, [right now it is available on arbitrum goerli network](https://www.rhascau.com/). Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the game room. Winner takes it all (reduced by our provider fee).
+Rhascau is a turn-based pod racing game which logic lays fully on the blockchain. It can be lunched on any EVM chain, [right now it is available on arbitrum goerli network](https://www.rhascau.com/). Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
 
 ## Gameplay
 
-Target to be achived during the game is simple: doing one full lap around 1-D, 40-tile race track. 
+Winning the match requires doing one full lap around 1-D, 40-tile race track, counting from your spawn point. 
 
 ***Rules and Restrictions:***
 - Vehicles on the board can be destroyed by collision, or DESTROY skill. Vehicle **A** destroys vehicle **B** by moving to the tile occupied by **B**.
