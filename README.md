@@ -93,4 +93,27 @@ In case of loosing access to the burner wallet, each user can destroy the channe
 Contract responsible for managing the ranking system, as well as payment channels creation. (Pretty self explanatory, see: `RhascauManager.sol`).
 
 ### Rhascau
+
+Heart of the game responsible for handling entire logic, as well as value transfer between players. 
+
+**Interfaces**
+- `IRhascauManager`: Interface for Rhasacu Manager providing all functions necessary to assing ranking points and statistics
+- `IArbSys`: Rhascau needs to obrain block data from L2 blockchain, in this particular example we use Arbitrum's [ArbSys](https://developer.arbitrum.io/arbos/precompiles#arbsys). 
+
+**Data Structures**
+
+In this section I will briefly describe data structures, and for the ease of reading (i hope at least) they will be denoted as follows: `Struct`, **Array**, *Mapping*  
+
+- `GameRoom`: this struct encapsulates wast majority of the data that each game is composed of. All the game rooms are held in the array of this type. Deep dive into the struct:
+  - `GameInfo`: general information about the status of the game
+  - **board**: array of 40 structs `Tile`. This is our race track. Each tile has a reference to `Vehicle`, as well as occupation state.
+  - *players*: this structure maps each player (address) to each of his four `Vehicle`.
+  - *cooldowns*: tracks `SkillsCooldown` for each player (address)
+  - *diceRolls*: tracks `DiceRoll` for each player (address) 
+  - *classToPlayer*: maps class of the player to his address.
+  - queue: keeps track of turns
+  - killCOunt: tracks how many players used thei "Destroy" ability (for the puropose of "Rapid Moves")
+- *blockHashToBeUsed*: keeps track of the player's dice rolls. (see: [Randomness](#randomness))
+- *userToRewardTimer*: Maps player (address) to `RewardsTimer`. Keeps track of first win and game of the day.
+- *isUserInGame*: Tracks if player is currently in a game room.
 ## Randomness
