@@ -895,7 +895,7 @@ contract Rhascau is Ownable {
         emit DiceRolled(classEnum(getPlayerClass(_roomId, msg.sender)), _roomId, diceResult);
     }
 
-    /// @dev Handles player move logic. Checks if player can move, if so, moves him (optionally with the usage of certrain _skill). Skills can be used only while moving (_leaveBase = false). 
+    /// @dev Handles player move logic. Checks if player can move, if so, moves him (optionally with the usage of certrain _skill). Skills can be used only while moving (_leaveBase = false).
     /// @param _roomId id of the game room
     /// @param _vehicleId id of the vehicle to be moved or taken out of base
     /// @param _skill skill to be used
@@ -1020,7 +1020,8 @@ contract Rhascau is Ownable {
     
     /// @dev Returns the current state of the game room. It includes the players (addresses) in the room and the entry fee.
     /// @param _roomId id of the game room
-    /// @return address[] array of players in the room, uint256 entryFee of the room.
+    /// @return address[] array of players in the room.
+    /// @return uint256 entryFee for the given room.
     function getRoomState(uint256 _roomId) external view returns (address[] memory, uint256) {
         address[] memory players = new address[](MAX_PLAYERS);
         for(uint i = 0; i < MAX_PLAYERS; i++) {

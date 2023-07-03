@@ -102,9 +102,9 @@ Heart of the game responsible for handling entire logic, as well as value transf
 
 **Data Structures**
 
-In this section I will briefly describe data structures, and for the ease of reading (i hope at least) they will be denoted as follows: `Struct`, **Array**, *Mapping*  
+In this section I will briefly describe data structures, and for the ease of reading they will be denoted as follows: `Struct`, **Array**, *Mapping*  
 
-- `GameRoom`: this struct encapsulates wast majority of the data that each game is composed of. All the game rooms are held in the array of this type. Deep dive into the struct:
+- `GameRoom`: this struct encapsulates wast majority of the data that each game is composed of. All the game rooms are held in the array of this type. Shallow dive into the struct:
   - `GameInfo`: general information about the status of the game
   - **board**: array of 40 structs `Tile`. This is our race track. Each tile has a reference to `Vehicle`, as well as occupation state.
   - *players*: this structure maps each player (address) to each of his four `Vehicle`.
@@ -116,4 +116,11 @@ In this section I will briefly describe data structures, and for the ease of rea
 - *blockHashToBeUsed*: keeps track of the player's dice rolls. (see: [Randomness](#randomness))
 - *userToRewardTimer*: Maps player (address) to `RewardsTimer`. Keeps track of first win and game of the day.
 - *isUserInGame*: Tracks if player is currently in a game room.
+
 ## Randomness
+
+Rhascau requires frequent random numbers generation. In order to obtain **fast**, **cheap** and **reliable** (for the sake of our usage) randomness on-chain, we decided to go with well known **commit - reveal scheme**.
+
+In **commit** stage, future block (current block + 2) is assinged to the user (*blockHashToBeUsed* mapping). After the given block arrives, user can reveal the value as long as the time between commit and reveal is less than 256 blocks. **Reaveal** stage includes getting hash of the commited block and assiging the final result to the user.
+
+
