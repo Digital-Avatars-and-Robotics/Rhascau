@@ -12,16 +12,16 @@
 
 ## Introduction
 
-Rhascau is a turn-based pod racing game which logic lays fully on the blockchain. It can be lunched on any EVM chain, [right now it is available on arbitrum goerli network](https://www.rhascau.com/). Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
+Rhascau is a turn-based pod racing game which logic lays fully on the Arbitrum Nova blockchain. It can be lunched on any EVM chain. Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
 
 ## Gameplay
 
-Winning the match requires doing one full lap around 1-D, 40-tile race track, counting from your spawn point. 
+Winning the match requires doing one full lap around 40-tile race track, counting from your spawn point. 
 
 ***Rules and Restrictions:***
 - Vehicles on the board can be destroyed by collision, or DESTROY skill. Vehicle **A** destroys vehicle **B** by moving to the tile occupied by **B**.
 - In order to win the race, vehicle must complete one lap, meaning **EXACTLY** 40 tiles. Vehicle can't cross the finishing line in any situation.
-- No friendly fire. Player **CAN NOT** destroy his own ships either with collision, or offensive skill. 
+- No friendly fire. Player **CAN NOT** destroy his own ships either via collision, or offensive skill. 
 - There are always 4 participants in the race, each of them starts with 2 vehicles on board, and 2 in base.
 - Skills can be used **ONLY** while moving with a vehicle that is already on the board. 
 
@@ -50,7 +50,7 @@ Whole game is dependent on 3 contracts `RhascauRanks.sol`, `RhascauManager.sol`,
 
 **Short system overview** 
 
-`Rhascau.sol` implements and handles the earlier mentioned rules and restrictions, as well as stakes, that players can agree on, before joining the game room. Each user can get a ranking badge (soulbound NFT) and upgrade it accordingly, which is handled by `Ranks.sol`. `RhascauManager.sol` manages the ranking system, as well as payment channels.
+`Rhascau.sol` implements and handles the earlier mentioned rules and restrictions, as well as stakes that players can agree on before joining the game room. Each user can get a ranking badge (soulbound NFT) and upgrade it accordingly, which is handled by `Ranks.sol`. `RhascauManager.sol` manages the ranking system, as well as payment channels.
 
 Infrastructure is designed is such a way, in order to maintain user ranking progress in case of need for changing the main game contract, `Rhascau.sol`.
 
@@ -112,7 +112,7 @@ In this section I will briefly describe data structures, and for the ease of rea
   - *diceRolls*: tracks `DiceRoll` for each player (address) 
   - *classToPlayer*: maps class of the player to his address.
   - queue: keeps track of turns
-  - killCOunt: tracks how many players used their "Destroy" ability (for the purpose of "Rapid Moves")
+  - killCount: tracks how many players used their "Destroy" ability (for the purpose of "Rapid Moves")
 - *blockHashToBeUsed*: keeps track of the player's dice rolls. (see: [Randomness](#randomness))
 - *userToRewardTimer*: Maps player (address) to `RewardsTimer`. Keeps track of first win and game of the day.
 - *isUserInGame*: Tracks if player is currently in a game room.
