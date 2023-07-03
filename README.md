@@ -21,7 +21,7 @@ Winning the match requires doing one full lap around 1-D, 40-tile race track, co
 ***Rules and Restrictions:***
 - Vehicles on the board can be destroyed by collision, or DESTROY skill. Vehicle **A** destroys vehicle **B** by moving to the tile occupied by **B**.
 - In order to win the race, vehicle must complete one lap, meaning **EXACTLY** 40 tiles. Vehicle can't cross the finishing line in any situation.
-- No friendly fire. Player **CAN NOT** destroy his own ships eighter with collision, or offensive skill. 
+- No friendly fire. Player **CAN NOT** destroy his own ships either with collision, or offensive skill. 
 - There are always 4 participants in the race, each of them starts with 2 vehicles on board, and 2 in base.
 - Skills can be used **ONLY** while moving with a vehicle that is already on the board. 
 
@@ -32,18 +32,18 @@ Winning the match requires doing one full lap around 1-D, 40-tile race track, co
 
 ***Dice:***
 
-Each turn starts with a dice roll (D6). Result indicates how many tiles player can move his vehicle (movement ocurrs only in one direction, towards finish line).
+Each turn starts with a dice roll (D6). Result indicates how many tiles player can move his vehicle (movement occurs only in one direction, towards finish line).
 Obtaining 1 or 6 allows player to put another vehicle on the board.
 
 ***Skills:***
 
-Rhascau intoduces 4 skills that players can use during the race. Those are put into two categories: offensive (used on enemy vehicles) and defensive (used on friendly ships). Each skill has a certaing cooldown (CD) measured in player's turns:
+Rhascau introduces 4 skills that players can use during the race. Those are put into two categories: offensive (used on enemy vehicles) and defensive (used on friendly ships). Each skill has a certain cooldown (CD) measured in player's turns:
 - Dash: [*Defensive*, *CD = 1*]; Vehicle dashes one tile forward (this movement can finish the race / destroy enemy vehicles) 
 - Root: [*Offensive*, *CD = 3*]; Immobilizes one of the vehicles for 1 turn. Immobilized vehicle can't move and can't be a target of Dash.
 - Bonus: [*Defensive*, *CD = 4*]; This skill allows player to roll the dice once again in his turn 
 - Destroy: [*Offensive*, *CD = once per game*]; Destroys selected vehicle on the board. After 2 players use this ability in given game, race enters the "Rapid mode".
 
-**Rapid mode** - Late game phase, where all the dice results are multipied by 2, hence vehicles cover twice as much distance in a turn.
+**Rapid mode** - Late game phase, where all the dice results are multiplied by 2, hence vehicles cover twice as much distance in a turn.
 ## Contracts
 
 Whole game is dependent on 3 contracts `RhascauRanks.sol`, `RhascauManager.sol`, and `Rhascau.sol`. The last contract, `PaymentChannel.sol` is used only while playing via front-end client.
@@ -68,7 +68,7 @@ Each of the players can mint an upgradable ranking badge in a form of a soulboun
 | each 1 ETH won           	| 4000   	|
 
 
-Treshholds for consecutive ranks are as follows:
+Thresholds for consecutive ranks are as follows:
 
 | Rank    	| Points range     	|
 |---------	|------------------	|
@@ -82,9 +82,9 @@ Treshholds for consecutive ranks are as follows:
 
 ### Payment Channels
 
-Very simple contract, serving as an intermadiary between user's personal wallet and a burner wallet. In order to create such a channel user must have a valid signature, which is generated based on both address of user wallet and address of burner created for him.
+Very simple contract, serving as an intermediary between user's personal wallet and a burner wallet. In order to create such a channel user must have a valid signature, which is generated based on both address of user wallet and address of burner created for him.
 
-User can top up a payment channel with certain minimum amount of funds, while burner wallet (which we then use for better user expierience while playing) treats the channel as a faucet.
+User can top up a payment channel with certain minimum amount of funds, while burner wallet (which we then use for better user experience while playing) treats the channel as a faucet.
 
 In case of loosing access to the burner wallet, each user can destroy the channel, collecting all the funds there were left at the same time.
 
@@ -97,8 +97,8 @@ Contract responsible for managing the ranking system, as well as payment channel
 Heart of the game responsible for handling entire logic, as well as value transfer between players. 
 
 **Interfaces**
-- `IRhascauManager`: Interface for Rhasacu Manager providing all functions necessary to assing ranking points and statistics
-- `IArbSys`: Rhascau needs to obrain block data from L2 blockchain, in this particular example we use Arbitrum's [ArbSys](https://developer.arbitrum.io/arbos/precompiles#arbsys). 
+- `IRhascauManager`: Interface for Rhascau Manager providing all functions necessary to assign ranking points and statistics
+- `IArbSys`: Rhascau needs to obtain block data from L2 blockchain, in this particular example we use Arbitrum's [ArbSys](https://developer.arbitrum.io/arbos/precompiles#arbsys). 
 
 **Data Structures**
 
@@ -112,7 +112,7 @@ In this section I will briefly describe data structures, and for the ease of rea
   - *diceRolls*: tracks `DiceRoll` for each player (address) 
   - *classToPlayer*: maps class of the player to his address.
   - queue: keeps track of turns
-  - killCOunt: tracks how many players used thei "Destroy" ability (for the puropose of "Rapid Moves")
+  - killCOunt: tracks how many players used their "Destroy" ability (for the purpose of "Rapid Moves")
 - *blockHashToBeUsed*: keeps track of the player's dice rolls. (see: [Randomness](#randomness))
 - *userToRewardTimer*: Maps player (address) to `RewardsTimer`. Keeps track of first win and game of the day.
 - *isUserInGame*: Tracks if player is currently in a game room.
@@ -121,6 +121,6 @@ In this section I will briefly describe data structures, and for the ease of rea
 
 Rhascau requires frequent random numbers generation. In order to obtain **fast**, **cheap** and **reliable** (for the sake of our usage) randomness on-chain, we decided to go with well known **commit - reveal scheme**.
 
-In **commit** stage, future block (current block + 2) is assinged to the user (*blockHashToBeUsed* mapping). After the given block arrives, user can reveal the value as long as the time between commit and reveal is less than 256 blocks. **Reaveal** stage includes getting hash of the commited block and assiging the final result to the user.
+In **commit** stage, future block (current block + 2) is assigned to the user (*blockHashToBeUsed* mapping). After the given block arrives, user can reveal the value as long as the time between commit and reveal is less than 256 blocks. **Reveal** stage includes getting hash of the committed block and assigning the final result to the user.
 
 
