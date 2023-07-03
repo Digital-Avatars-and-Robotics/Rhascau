@@ -12,60 +12,60 @@
 
 ## Introduction
 
-Rhascau is a turn-based pod racing game which logic lays fully on the Arbitrum Nova blockchain. It can be lunched on any EVM chain. Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
+Rhascau is a strategy racing game written in Solidity, and compatible with any EVM-based blockchain. Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
 
 ## Gameplay
 
-Winning the match requires doing one full lap around 40-tile race track, counting from your spawn point. 
+Winning the match requires doing a one full lap around 40-tile race track, counting from your spawn point. 
 
 ***Rules and Restrictions:***
 - Vehicles on the board can be destroyed by collision, or DESTROY skill. Vehicle **A** destroys vehicle **B** by moving to the tile occupied by **B**.
-- In order to win the race, vehicle must complete one lap, meaning **EXACTLY** 40 tiles. Vehicle can't cross the finishing line in any situation.
+- In order to win the race, vehicle must complete one lap, meaning **EXACTLY** 40 tiles. Vehicle can't cross the finish line in any situation.
 - No friendly fire. Player **CAN NOT** destroy his own ships either via collision, or offensive skill. 
-- There are always 4 participants in the race, each of them starts with 2 vehicles on board, and 2 in base.
-- Skills can be used **ONLY** while moving with a vehicle that is already on the board. 
+- There are always 4 participants in the race. Each of them starts with 2 vehicles on the board, and 2 in a base.
+- Abilities can be used **ONLY** while moving with a vehicle that is already on the board. 
 
 ***Game loop:***
-1. Rolling the dice
-2. Selecting skill to be used, and vehicles to be used on (optional)
-3. Moving one of the ships / Putting another vehicle on the board
+1. Generating a move from a future blockhash (current block + 2), via the commit-reveal scheme (see below for more details)
+2. Selecting ability to be used, and vehicles that the ability can be used on (optional)
+3. Moving vehicles / deploying another vehicle on the board
 
-***Dice:***
+***Move generation:***
 
-Each turn starts with a dice roll (D6). Result indicates how many tiles player can move his vehicle (movement occurs only in one direction, towards finish line).
-Obtaining 1 or 6 allows player to put another vehicle on the board.
+Each turn starts with a move generation (D6). Result indicates how many tiles player can move one of his vehicles (movement occurs only in one direction, towards the finish line).
+Obtaining 1 or 6 allows player to deploy another vehicle on the board. 6 also gives the player a chance to make the extra turn.
 
 ***Skills:***
 
-Rhascau introduces 4 skills that players can use during the race. Those are put into two categories: offensive (used on enemy vehicles) and defensive (used on friendly ships). Each skill has a certain cooldown (CD) measured in player's turns:
-- Dash: [*Defensive*, *CD = 1*]; Vehicle dashes one tile forward (this movement can finish the race / destroy enemy vehicles) 
-- Root: [*Offensive*, *CD = 3*]; Immobilizes one of the vehicles for 1 turn. Immobilized vehicle can't move and can't be a target of Dash.
-- Bonus: [*Defensive*, *CD = 4*]; This skill allows player to roll the dice once again in his turn 
-- Destroy: [*Offensive*, *CD = once per game*]; Destroys selected vehicle on the board. After 2 players use this ability in given game, race enters the "Rapid mode".
+Rhascau introduces 4 abilities that players can use during the race. Those are put into two categories: offensive (used on enemy vehicles) and defensive (used on friendly vehicles). Each ability has a certain cooldown (CD) measured in player's turns:
+- Dash: [*Defensive*, *CD = 1*]; Vehicle dashes one tile forward (you can finish the race with Dash / destroy enemy vehicles / you can also move one of the vehicles, and Dash with the other one) 
+- Root: [*Offensive*, *CD = 3*]; Immobilizes one of the vehicles for 1 turn. Immobilized vehicle can't move and can't be a target of a self-Dash (other players can Dash into your Rooted vehicle, killing it).
+- Bonus: [*Defensive*, *CD = 4*]; This ability allows player to generate the move once again in his turn 
+- Destroy: [*Offensive*, *CD = once per game*]; Destroys selected vehicle. If, and only if, 2 players use this ability in a given match, race enters the "Rapid mode".
 
-**Rapid mode** - Late game phase, where all the dice results are multiplied by 2, hence vehicles cover twice as much distance in a turn.
+**Rapid mode** - Late game phase, where all the movement results (except the movement from Dash) are multiplied by 2, hence vehicles cover twice as much distance in a given turn.
 ## Contracts
 
-Whole game is dependent on 3 contracts `RhascauRanks.sol`, `RhascauManager.sol`, and `Rhascau.sol`. The last contract, `PaymentChannel.sol` is used only while playing via front-end client.
+Rhascau is dependent on 3 contracts `RhascauRanks.sol`, `RhascauManager.sol`, and `Rhascau.sol`. The last contract, `PaymentChannel.sol` is only used while playing via the front-end client.
 
 **Short system overview** 
 
-`Rhascau.sol` implements and handles the earlier mentioned rules and restrictions, as well as stakes that players can agree on before joining the game room. Each user can get a ranking badge (soulbound NFT) and upgrade it accordingly, which is handled by `Ranks.sol`. `RhascauManager.sol` manages the ranking system, as well as payment channels.
+`Rhascau.sol` implements and handles the mentioned rules and restrictions, as well as stakes that players can agree on commiting in a match, before joining the match. Each user can get a ranking badge (soulbound NFT) and upgrade it according to their in-game actions, which is handled by `Ranks.sol`. `RhascauManager.sol` manages the ranking system, as well as payment channels.
 
-Infrastructure is designed is such a way, in order to maintain user ranking progress in case of need for changing the main game contract, `Rhascau.sol`.
+Infrastructure is designed in such a way, in order to maintain user ranking progress, in case if the main game contract, `Rhascau.sol` would need to be changed.
 
 ### Ranking System
 
-Each of the players can mint an upgradable ranking badge in a form of a soulbound NFT. Upgrades are available after collecting certain amount of ranking points, which are assigned during the game, according to the following table. 
+Players can mint an upgradable ranking badge in a form of a soulbound NFT. Upgrades are available after collecting certain amount of ranking points, which are assigned during the match, according to the following table. 
 
 | Activity                 	| Points 	|
 |--------------------------	|--------	|
-| Participation in a game  	| 50     	|
-| Winning a game           	| 150    	|
+| Participation in a match  | 50      |
+| Winning a match           | 150    	|
 | Destroying enemy vehicle 	| 20     	|
 | First win of the day     	| 150    	|
 | First game of the day    	| 50     	|
-| each 1 ETH won           	| 4000   	|
+| Each 1 ETH won           	| 4000   	|
 
 
 Thresholds for consecutive ranks are as follows:
@@ -82,11 +82,11 @@ Thresholds for consecutive ranks are as follows:
 
 ### Payment Channels
 
-Very simple contract, serving as an intermediary between user's personal wallet and a burner wallet. In order to create such a channel user must have a valid signature, which is generated based on both address of user wallet and address of burner created for him.
+Very simple contract, serving as an intermediary between user's personal crypto wallet and a burner address (burner addresses are stored in user's personal web browsers, and only they have the access to them). In order to create such a channel user must have a valid signature, which is generated based on both address of user wallet and address of burner created for him.
 
-User can top up a payment channel with certain minimum amount of funds, while burner wallet (which we then use for better user experience while playing) treats the channel as a faucet.
+User can top up a payment channel with certain minimum amount of Ether, while burner wallet (which we then use for better user experience inside the game) treats the channel as a faucet.
 
-In case of loosing access to the burner wallet, each user can destroy the channel, collecting all the funds there were left at the same time.
+In case of loosing the access to the burner address, each user can destroy the channel, collecting all the Ether from it.
 
 ### Manager
 
@@ -94,7 +94,7 @@ Contract responsible for managing the ranking system, as well as payment channel
 
 ### Rhascau
 
-Heart of the game responsible for handling entire logic, as well as value transfer between players. 
+Heart of the game. Responsible for handling entire logic, as well as Ether transfers between players. 
 
 **Interfaces**
 - `IRhascauManager`: Interface for Rhascau Manager providing all functions necessary to assign ranking points and statistics
@@ -104,7 +104,7 @@ Heart of the game responsible for handling entire logic, as well as value transf
 
 In this section I will briefly describe data structures, and for the ease of reading they will be denoted as follows: `Struct`, **Array**, *Mapping*  
 
-- `GameRoom`: this struct encapsulates wast majority of the data that each game is composed of. All the game rooms are held in the array of this type. Shallow dive into the struct:
+- `GameRoom`: this struct encapsulates wast majority of the data that each game is composed of. All the game matches are held in the array of this type. Shallow dive into the struct:
   - `GameInfo`: general information about the status of the game
   - **board**: array of 40 structs `Tile`. This is our race track. Each tile has a reference to `Vehicle`, as well as occupation state.
   - *players*: this structure maps each player (address) to each of his four `Vehicle`.
@@ -113,13 +113,13 @@ In this section I will briefly describe data structures, and for the ease of rea
   - *classToPlayer*: maps class of the player to his address.
   - queue: keeps track of turns
   - killCount: tracks how many players used their "Destroy" ability (for the purpose of "Rapid Moves")
-- *blockHashToBeUsed*: keeps track of the player's dice rolls. (see: [Randomness](#randomness))
+- *blockHashToBeUsed*: keeps track of the player's movement generations. (see: [Randomness](#randomness))
 - *userToRewardTimer*: Maps player (address) to `RewardsTimer`. Keeps track of first win and game of the day.
-- *isUserInGame*: Tracks if player is currently in a game room.
+- *isUserInGame*: Tracks if player is currently in a match.
 
 ## Randomness
 
-Rhascau requires frequent random numbers generation. In order to obtain **fast**, **cheap** and **reliable** (for the sake of our usage) randomness on-chain, we decided to go with well known **commit - reveal scheme**.
+Rhascau requires a frequent random numbers generation. In order to obtain **fast**, **cheap** and **reliable** (for the sake of our usage) randomness on-chain, we decided to go with well known **commit - reveal scheme**.
 
 In **commit** stage, future block (current block + 2) is assigned to the user (*blockHashToBeUsed* mapping). After the given block arrives, user can reveal the value as long as the time between commit and reveal is less than 256 blocks. **Reveal** stage includes getting hash of the committed block and assigning the final result to the user.
 
