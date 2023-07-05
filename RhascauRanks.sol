@@ -12,9 +12,10 @@ contract RhascauRanks is ERC721, ERC721URIStorage, Ownable {
 
     event RankAssigned(address _user, uint256 _tokenId);
 
+    bool public isPaused = false;
     address public rhascauManagerContract;
     string public constant baseExtension = ".json";
-    string public baseURI = "ipfs://QmSz1f4greFUkcZGj4UBd6dYW9SMaigyncL15VhC8HqdRJ/";
+    string public baseURI = "https://olive-obnoxious-gerbil-874.mypinata.cloud/ipfs/QmZJode5Thb4DmrVTB8U5puJH4A8yUgfXm51JjodCqzu5D/";
 
     mapping(address => uint256) public userToToken;
 
@@ -30,10 +31,16 @@ contract RhascauRanks is ERC721, ERC721URIStorage, Ownable {
         _;
     }
 
+    modifier notPaused() {
+        require(!isPaused, "Rhascau Ranks: Contract is paused");
+        _;
+    }
+
     constructor() ERC721("Rhascau Season I", "RSI") {}
 
     function safeMint(address _to) external 
-    onlyRhascauManager 
+    onlyRhascauManager
+    notPaused 
     alreadyOwner(_to)
     {
         uint256 tokenId = _tokenIdCounter.current();
@@ -64,6 +71,14 @@ contract RhascauRanks is ERC721, ERC721URIStorage, Ownable {
 
     function getBaseURI() external view returns(string memory) {
         return baseURI;
+    }
+
+    function togglePaused() external onlyOwner {
+        isPaused = !isPaused;
+    }
+
+    function setBaseUri(string memory _newUri) external onlyOwner {
+        baseURI = _newUri;
     }
 
     // The following functions are overrides required by Solidity.

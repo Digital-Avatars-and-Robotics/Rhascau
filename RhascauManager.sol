@@ -16,7 +16,7 @@ contract RhascauManager is EIP712, Ownable {
     string private constant SIGNING_DOMAIN = "Rhascau";
     string private constant SIGNATURE_VERSION = "1";
     
-    uint8 private rankIndex = 54;
+    uint8 private rankIndex = 102;
     uint8 public currentSezon;
     address public rhascauContract;
     address public rhascauRanks;
@@ -67,6 +67,10 @@ contract RhascauManager is EIP712, Ownable {
 
     function changeSezon(uint8 _newSezon) external onlyOwner {
         currentSezon = _newSezon;
+    }
+
+    function changeRankIndex(uint8 _newIndex) external onlyOwner {
+        rankIndex = _newIndex;
     }
 
     //signature verifier

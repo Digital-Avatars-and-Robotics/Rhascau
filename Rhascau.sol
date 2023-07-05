@@ -2,6 +2,26 @@
 pragma solidity >=0.4.22 <0.9.0;
 import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
+/// @author Developed by Minters
+// Twitter: @mintersworld
+
+// This is my contract. There are many like it, but this one is mine.
+// My contract is my best friend. It is my life. I must master it as I must master my life.
+// Without me, my contract is useless. Without my contract, I am useless. I must deploy my contract true. 
+// I must code better than my enemy who is trying to exploit me. I must secure the code before he rugs me. I will ...
+
+// My contract and I know that what counts in blockchain is not the transactions we fire, the amount of our gas, nor the gas spikes we make. 
+// We know that it is the code that count. We will code ...
+
+// My contract is human, even as I, because it is my life. Thus, I will learn it as a brother. 
+// I will learn its weaknesses, its strength, its overflows, its variables, its methods and its requirements. 
+// I will keep my contract clean and ready, even as I am clean and ready. We will become part of each other. We will ...
+
+// Before Vitalik, I swear this creed. My contract and I are the defenders of our Ether. We are the masters of our enemy. 
+// We are the saviors of our balance.
+// So be it, until victory is our's, and there is no errors, but succesful compilations!
+
+
 /*
 ERROR LIST REFERENCE:
 E1 - Contract is paused
@@ -313,6 +333,7 @@ contract Rhascau is Ownable {
         for(uint i=0; i<MAX_PLAYERS; i++) {
             if(games[_roomId].classToPlayer[classEnum(i)] == address(0)) return uint8(i);
         }
+        return 99;
     }
 
     /// @dev Updates user statistics after the game has ended (games played, games won).
@@ -895,7 +916,7 @@ contract Rhascau is Ownable {
         emit DiceRolled(classEnum(getPlayerClass(_roomId, msg.sender)), _roomId, diceResult);
     }
 
-    /// @dev Handles player move logic. Checks if player can move, if so, moves him (optionally with the usage of certrain _skill). Skills can be used only while moving (_leaveBase = false).
+    /// @dev Handles player move logic. Checks if player can move, if so, moves him (optionally with the usage of certrain _skill). Skills can be used only while moving (_leaveBase = false). 
     /// @param _roomId id of the game room
     /// @param _vehicleId id of the vehicle to be moved or taken out of base
     /// @param _skill skill to be used
@@ -1020,8 +1041,7 @@ contract Rhascau is Ownable {
     
     /// @dev Returns the current state of the game room. It includes the players (addresses) in the room and the entry fee.
     /// @param _roomId id of the game room
-    /// @return address[] array of players in the room.
-    /// @return uint256 entryFee for the given room.
+    /// @return address[] array of players in the room, uint256 entryFee of the room.
     function getRoomState(uint256 _roomId) external view returns (address[] memory, uint256) {
         address[] memory players = new address[](MAX_PLAYERS);
         for(uint i = 0; i < MAX_PLAYERS; i++) {

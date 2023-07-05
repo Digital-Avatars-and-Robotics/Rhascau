@@ -14,6 +14,11 @@
 
 Rhascau is a strategy racing game written in Solidity, and compatible with any EVM-based blockchain. Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
 
+Current contracts (arbiscan):
+- [Rhascau](https://nova.arbiscan.io/address/0x816297804A41558802e994c65FB09F9B40c74a8b)
+- [Rhascau Manager](https://nova.arbiscan.io/address/0x0d120743c02963070eF1ABA05443CF0BB6A9B16D)
+- [Rhascau Ranks](https://nova.arbiscan.io/address/0x45b47658298D0A063F7E21E0e93707E80E53a496)
+
 ## Gameplay
 
 Winning the match requires doing a one full lap around 40-tile race track, counting from your spawn point. 
@@ -26,7 +31,7 @@ Winning the match requires doing a one full lap around 40-tile race track, count
 - Abilities can be used **ONLY** while moving with a vehicle that is already on the board. 
 
 ***Game loop:***
-1. Generating a move from a future blockhash (current block + 2), via the commit-reveal scheme (see below for more details)
+1. Generating a move from a future blockhash (current block + 2), via the commit-reveal scheme (see [Randomness](#randomness))
 2. Selecting ability to be used, and vehicles that the ability can be used on (optional)
 3. Moving vehicles / deploying another vehicle on the board
 
