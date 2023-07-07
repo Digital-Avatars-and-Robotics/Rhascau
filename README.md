@@ -68,7 +68,7 @@ Players can mint an upgradable ranking badge in a form of a soulbound NFT. Upgra
 | Participation in a match  | 50      |
 | Winning a match           | 150    	|
 | Destroying enemy vehicle 	| 20     	|
-| First win of the day     	| 150    	|
+| First win of the day     	| 50    	|
 | First game of the day    	| 50     	|
 | Each 1 ETH won           	| 4000   	|
 
