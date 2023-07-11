@@ -4,7 +4,7 @@ pragma solidity >=0.4.22 <0.9.0;
 contract PaymentChannel {
 
     uint256 public balance;
-    uint256 public constant MINIMAL_TOPUP = 0.1 ether;
+    uint256 public constant MINIMAL_TOPUP = 0.001 ether;
     address public user;
     address public burner;
     address public rhascauManager;
