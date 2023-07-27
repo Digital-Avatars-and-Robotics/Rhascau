@@ -15,7 +15,7 @@
 Rhascau is a strategy racing game written in Solidity, and compatible with any EVM-based blockchain. Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
 
 Current contracts (arbiscan):
-- [Rhascau](https://nova.arbiscan.io/address/0x816297804A41558802e994c65FB09F9B40c74a8b)
+- [Rhascau](https://nova.arbiscan.io/address/0xe25b5f52cf174adb3ad85a95bdb1d24eaaf074ae)
 - [Rhascau Manager](https://nova.arbiscan.io/address/0x0d120743c02963070eF1ABA05443CF0BB6A9B16D)
 - [Rhascau Ranks](https://nova.arbiscan.io/address/0x45b47658298D0A063F7E21E0e93707E80E53a496)
 
@@ -116,6 +116,7 @@ In this section I will briefly describe data structures, and for the ease of rea
   - *cooldowns*: tracks `SkillsCooldown` for each player (address)
   - *diceRolls*: tracks `DiceRoll` for each player (address) 
   - *classToPlayer*: maps class of the player to his address.
+  - *afkRecord*: tracks if given player is marked as AFK. If so, his time for the turn will be 0, hence other players will be able to skip him immediately. Each AFK player can rejoin at any time.
   - queue: keeps track of turns
   - killCount: tracks how many players used their "Destroy" ability (for the purpose of "Rapid Moves")
 - *blockHashToBeUsed*: keeps track of the player's movement generations. (see: [Randomness](#randomness))

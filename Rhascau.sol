@@ -2,26 +2,6 @@
 pragma solidity >=0.4.22 <0.9.0;
 import "../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
-/// @author Developed by Minters
-// Twitter: @mintersworld
-
-// This is my contract. There are many like it, but this one is mine.
-// My contract is my best friend. It is my life. I must master it as I must master my life.
-// Without me, my contract is useless. Without my contract, I am useless. I must deploy my contract true. 
-// I must code better than my enemy who is trying to exploit me. I must secure the code before he rugs me. I will ...
-
-// My contract and I know that what counts in blockchain is not the transactions we fire, the amount of our gas, nor the gas spikes we make. 
-// We know that it is the code that count. We will code ...
-
-// My contract is human, even as I, because it is my life. Thus, I will learn it as a brother. 
-// I will learn its weaknesses, its strength, its overflows, its variables, its methods and its requirements. 
-// I will keep my contract clean and ready, even as I am clean and ready. We will become part of each other. We will ...
-
-// Before Vitalik, I swear this creed. My contract and I are the defenders of our Ether. We are the masters of our enemy. 
-// We are the saviors of our balance.
-// So be it, until victory is our's, and there is no errors, but succesful compilations!
-
-
 /*
 ERROR LIST REFERENCE:
 E1 - Contract is paused
@@ -107,6 +87,8 @@ contract Rhascau is Ownable {
     event RapidMoves(uint256 _roomId);
     event EmojiSent(uint256 _roomId, classEnum _class, uint8 _type);
     event GameFinished(uint256 _roomId, classEnum _class, address _winner, uint256 _prize);
+    event PlayerIsAFK(uint256 _roomId, classEnum _class);
+    event PlayerIsBack(uint256 _roomId, classEnum _class);
 
     constructor(address _rhascauManagerAddress, address _arbSysAddress) {
         rhascauManager = IRhascauManager(_rhascauManagerAddress);
@@ -124,7 +106,7 @@ contract Rhascau is Ownable {
     
     bool public isContractPaused = false;
     uint256 public providerFee = 2;
-    uint256 public turnTime = 50;
+    uint256 public turnTime = 40;
     address public protocolsFeeAddress = 0x56E380e2A76A35eb8f6caF8B03D085C786E0d436;
 
     enum classEnum {ONE, TWO, THREE, FOUR}
@@ -172,6 +154,7 @@ contract Rhascau is Ownable {
         mapping(address => SkillsCooldown) cooldowns;
         mapping(address => DiceRoll) diceRolls;
         mapping(classEnum => address) classToPlayer;
+        mapping(classEnum => bool) afkRecord;
         uint8 queue;
         uint8 killCount;
     }
@@ -333,7 +316,6 @@ contract Rhascau is Ownable {
         for(uint i=0; i<MAX_PLAYERS; i++) {
             if(games[_roomId].classToPlayer[classEnum(i)] == address(0)) return uint8(i);
         }
-        return 99;
     }
 
     /// @dev Updates user statistics after the game has ended (games played, games won).
@@ -367,11 +349,14 @@ contract Rhascau is Ownable {
         for(uint i=0; i<MAX_PLAYERS; i++)
         {
             address user = games[_roomId].classToPlayer[classEnum(i)];
-            if(block.timestamp - userToRewardTimer[user].lastTimePlayed >= 1 days)
+            if(!games[_roomId].afkRecord[classEnum(i)])
             {
-                increaseRankingInternal(user, 100);
+                if(block.timestamp - userToRewardTimer[user].lastTimePlayed >= 1 days)
+                {
+                    increaseRankingInternal(user, 100);
+                }
+                else increaseRankingInternal(user, 50);
             }
-            else increaseRankingInternal(user, 50);
             isUserInGame[user] = false;
             userToRewardTimer[user].lastTimePlayed = block.timestamp;
         }
@@ -445,6 +430,7 @@ contract Rhascau is Ownable {
     /// @param _player address of the winner
     /// @param _enemyInteraction true if the winner has interacted with the enemy in his game-finishing move, otherwise false
     function assignWinner(uint256 _roomId, address _player, bool _enemyInteraction) internal {
+        
         games[_roomId].info.hasEnded = true;
         uint256 reward = 4 * games[_roomId].info.entryFee - 4 * games[_roomId].info.entryFee / 100 * providerFee;
         uint256 pointsReward = ((4 * games[_roomId].info.entryFee * 4000)/1e18);
@@ -509,7 +495,7 @@ contract Rhascau is Ownable {
         games[_roomId].queue = (games[_roomId].queue + 1) % 4;
         games[_roomId].info.moveTimestamp = arbSys.arbBlockNumber();
         //root handling
-        checkRootAndCooldowns(_roomId, msg.sender);
+        checkRootAndCooldowns(_roomId, currentPlayer);
         emit NewTurn(_roomId, classEnum(games[_roomId].queue)); 
     }
     
@@ -599,7 +585,7 @@ contract Rhascau is Ownable {
         room.board[startingPoint].isOccupied = true;
         room.diceRolls[msg.sender].toBeUsed = false;
         if(!rapidActive && _diceRoll == 1 || rapidActive && _diceRoll == 2) updateQueue(_roomId);
-
+        else room.info.moveTimestamp = arbSys.arbBlockNumber();
         emit VehicleLeftBase(_roomId, _vehicleId);
     }
 
@@ -643,7 +629,7 @@ contract Rhascau is Ownable {
                     games[_roomId].players[msg.sender][games[_roomId].board[_targetTile].vehicle.id].isLapDone = true;
                     room.board[(_targetTile + 1) % 40].isOccupied == false;
                     emit LapFinished(_roomId, targetTile.vehicle.id);
-                    assignWinner(_roomId, msg.sender, true);
+                    if(!games[_roomId].info.hasEnded) assignWinner(_roomId, msg.sender, true);
                 }
                 else 
                 {
@@ -660,7 +646,7 @@ contract Rhascau is Ownable {
                     games[_roomId].players[msg.sender][games[_roomId].board[_targetTile].vehicle.id].isLapDone = true;
                     room.board[(_targetTile + 1) % 40].isOccupied == false;
                     emit LapFinished(_roomId, targetTile.vehicle.id);
-                    assignWinner(_roomId, msg.sender, false);
+                    if(!games[_roomId].info.hasEnded) assignWinner(_roomId, msg.sender, false);
                 }
                 else 
                 {
@@ -723,7 +709,7 @@ contract Rhascau is Ownable {
                 newTile.isOccupied = false;
                 emit VehicleMovedAndDestroyed(_roomId, currentTile.vehicle.id, currentTileIndex, newTileIndex, newTile.vehicle.id);
                 emit LapFinished(_roomId, _vehicleId);
-                assignWinner(_roomId, msg.sender, true);
+                if(!games[_roomId].info.hasEnded) assignWinner(_roomId, msg.sender, true);
             }
             else //enemy destroyed reward
             {
@@ -740,7 +726,7 @@ contract Rhascau is Ownable {
                 room.players[msg.sender][_vehicleId].isLapDone = true;
                 emit VehicleMoved(_roomId, currentTile.vehicle.id, currentTileIndex, newTileIndex);
                 emit LapFinished(_roomId, _vehicleId);
-                assignWinner(_roomId, msg.sender, false);
+                if(!games[_roomId].info.hasEnded) assignWinner(_roomId, msg.sender, false);
             }
             else 
             {
@@ -754,7 +740,7 @@ contract Rhascau is Ownable {
         {
             emit PlayerUsedBonus(_roomId, classEnum(playerClass));
             games[_roomId].diceRolls[msg.sender].diceResult = 0;
-            games[_roomId].info.moveTimestamp = arbSys.arbBlockNumber() + turnTime;
+            games[_roomId].info.moveTimestamp = arbSys.arbBlockNumber();
         }
         if(repeat == false)
         {
@@ -776,6 +762,14 @@ contract Rhascau is Ownable {
         classEnum class = classEnum(getPlayerClass(_roomId, msg.sender));
         emit EmojiSent(_roomId, class, _type);
     } 
+    
+    /// @dev Signals that player is no longer AFK, so his turnTime returns to normal.
+    /// @param _roomId id of the game room
+    function returnFromAFK(uint256 _roomId) external {
+        classEnum playerClass = classEnum(getPlayerClass(_roomId, msg.sender));
+        games[_roomId].afkRecord[playerClass] = false;
+        emit PlayerIsBack(_roomId, playerClass);
+    }
 
     
     /// @dev Creates new game room with given stake (_entryFee), puts players ships on board, sets cooldowns, entry fees, isUserInGame mapping.
@@ -902,7 +896,7 @@ contract Rhascau is Ownable {
         require(rolls.toBeUsed == false || ((rolls.diceResult == 6 && games[_roomId].killCount < 2) || (rolls.diceResult == 12 && games[_roomId].killCount >= 2) && rolls.toBeUsed == false) || rolls.diceResult == 0, "E26");
         if(blockHashToBeUsed[msg.sender] == 0 || arbSys.arbBlockNumber() > blockHashToBeUsed[msg.sender] + 252) //rolling the dice 
         {
-            blockHashToBeUsed[msg.sender] = arbSys.arbBlockNumber() + 2;
+            blockHashToBeUsed[msg.sender] = arbSys.arbBlockNumber() + 1;
             return;
         }
         bytes32 blockHash = arbSys.arbBlockHash(blockHashToBeUsed[msg.sender]);
@@ -943,11 +937,30 @@ contract Rhascau is Ownable {
     /// @dev Function switches the game queue to the next player if the current player is out of time for making move.
     /// @param _roomId id of the game room
     function hurryPlayer(uint256 _roomId) external {
-        require(arbSys.arbBlockNumber() >= games[_roomId].info.moveTimestamp + turnTime, "E29");
+        GameRoom storage room = games[_roomId];
+        if(!room.afkRecord[classEnum(room.queue)]) 
+        {
+            require(arbSys.arbBlockNumber() >= games[_roomId].info.moveTimestamp + turnTime, "E29");
+            room.afkRecord[classEnum(room.queue)] = true;
+            emit PlayerIsAFK(_roomId, classEnum(room.queue));
+        }
         updateQueue(_roomId);
     }
 
     /* EXTERNAL VIEW FUNCTIONS */
+
+    /// @dev Returns record of players that are AFK
+    /// @param _roomId id of the game room
+    /// @return array of AFK players
+    function getAfkPlayers(uint256 _roomId) external view returns (bool[4] memory) {
+        bool[4] memory afkPlayers;
+        for(uint i=0;i<4;i++)
+        {
+            if(games[_roomId].afkRecord[classEnum(i)] == true) afkPlayers[i] = true;
+            else afkPlayers[i] = false;
+        }
+        return afkPlayers;
+    }
 
     /// @dev Returns array of 40 tiles representing the board state.
     /// @param _roomId id of the game room
