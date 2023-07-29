@@ -15,7 +15,7 @@
 Rhascau is a strategy racing game written in Solidity, and compatible with any EVM-based blockchain. Rhascau allows users to decide on the stake of the game, meaning each of the players must provide given amount of ether ( >= 0 ) before entering the match. Winner takes it all (reduced by the provider fee).
 
 Current contracts (arbiscan):
-- [Rhascau](https://nova.arbiscan.io/address/0xe25b5f52cf174adb3ad85a95bdb1d24eaaf074ae)
+- [Rhascau v1.1](https://nova.arbiscan.io/address/0xe25b5f52cf174adb3ad85a95bdb1d24eaaf074ae)
 - [Rhascau Manager](https://nova.arbiscan.io/address/0x0d120743c02963070eF1ABA05443CF0BB6A9B16D)
 - [Rhascau Ranks](https://nova.arbiscan.io/address/0x45b47658298D0A063F7E21E0e93707E80E53a496)
 
